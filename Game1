@@ -1,0 +1,669 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
+using Microsoft.Xna.Framework.Content;
+using Microsoft.Xna.Framework.GamerServices;
+using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
+using Microsoft.Xna.Framework.Media;
+
+
+namespace nave5pasos
+{
+    
+    public class Game1 : Microsoft.Xna.Framework.Game
+    {
+        int Pun_Total=0;
+        int cont_vidas = 3;
+        int cont_Extra_vidas = 0;
+        int cont_boss = 0;
+        int cont_ene = 0;
+        int rbc = 3;
+        int vec = 3;
+        int nivel = 0;
+        Rectangle life,puntos,rBoss;
+        Vector2 posLife,posPuntos,posScore,posResul,posLevel,posBoss;
+        Texture2D puntaje,vidas,boss;
+        GraphicsDeviceManager graphics;
+        SpriteBatch spriteBatch;
+        Nave _nave;
+        Fondo _fondo;
+        Boss _boss;
+        private int frameCounter = 0;
+        private List<Enemigo> enemigo;
+        SpriteFont score,resul,level;
+        string Score = "PUNTAJE";
+        string Resul= "";
+        string Level = "NIVEL X";
+        bool fin = false;
+        bool lvl = false;
+        bool lvl1 = false;
+        bool explo = false;
+        bool explo_e = false;
+        bool izq = true;
+        bool ataque = false;
+        bool the_boss = false;
+        bool cont_b = false;
+        bool ene = false;
+        bool win = false;
+        SoundEffect s_colision_n, s_colision_d;
+        SoundEffect s_fondo;
+        Vector2 ene_explo;
+
+        // animacion
+
+        private animacion asteroide;
+        private Vector2 spritePos;
+        private const int FRAMES = 5;
+        private const int FRAMESPERSEC = 10;
+        
+        //contador
+        int counter = 0;
+        int limit = 1;
+        float countDuration = 0.3f;
+        float currentTime = 0f;
+
+
+        bool lluvia = true;
+
+        public Game1()
+        {
+            
+            graphics = new GraphicsDeviceManager(this);
+            enemigo = new List<Enemigo>();
+            _nave = new Nave(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
+            _boss = new Boss(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
+            asteroide = new animacion (FRAMES,FRAMESPERSEC);
+            Content.RootDirectory = "Content";
+        }
+
+   
+        protected override void Initialize()
+        {
+            
+            Console.WriteLine(graphics.PreferredBackBufferHeight + "x" + graphics.PreferredBackBufferWidth);
+            _fondo = new Fondo(graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth);
+                      
+            this.Window.Title = "Prince Game";
+           
+            base.Initialize();
+
+            posLife = new Vector2((int)640, (int)440);
+            life = new Rectangle(0, 40, 160, 40);
+
+            posPuntos = new Vector2((int)0, (int)10);
+            puntos= new Rectangle(0,0, 280, 45);
+
+            posScore = new Vector2((int)90, (int)0);
+            posResul = new Vector2((int)180, (int)0);
+            posLevel = new Vector2((int)28,(int)25);
+            posBoss = new Vector2((int)392,(int)45);
+            rBoss = new Rectangle(0, 0, 60, 60);
+
+          //  s_fondo.Play(0.3f, 0.0f, 0.0f);
+
+
+
+           
+        }
+
+      
+        protected override void LoadContent()
+        {
+            
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            asteroide.Load(Content, "explo");
+
+            _fondo.LoadContent(Content);
+            _nave.LoadContent(Content);
+            _boss.LoadContent(Content);
+            puntaje = Content.Load<Texture2D>("puntaje");
+            vidas = Content.Load<Texture2D>("vidas");
+            score = Content.Load<SpriteFont>("SpriteFont1");
+            resul = Content.Load<SpriteFont>("resultado");
+            level = Content.Load<SpriteFont>("Level");
+            s_colision_d = Content.Load<SoundEffect>("Explosion6");
+            s_colision_n = Content.Load<SoundEffect>("Explosion7");
+            s_fondo = Content.Load<SoundEffect>("Nico");
+           
+
+           
+        }
+
+       
+        protected override void UnloadContent()
+        {
+          
+        }
+
+        
+        protected override void Update(GameTime gameTime)
+        {
+            if (win == false)
+            {
+            float elapsed = (float)gameTime.ElapsedGameTime.TotalSeconds;
+            _fondo.Update();
+            _nave.Update();
+          
+                UpdateEnemigos();
+         
+            UpdateColisiones();
+            asteroide.UpdateFrame(elapsed);
+
+
+
+            if (the_boss)
+            {
+                _boss.Update(ataque);
+
+                if (_boss.Posicion.X != _nave.Posicion.X)
+                {
+                    ataque = false;
+
+                    if (izq)
+                    {
+                        posBoss.X -= 5;
+                        _boss.Posicion = posBoss;
+                        if (_boss.Posicion.X <= 0)
+                        {
+                            izq = false;
+                        }
+
+                    }
+                    if (izq == false)
+                    {
+                        posBoss.X += 5;
+                        _boss.Posicion = posBoss;
+                        if (_boss.Posicion.X >= 750)
+                        {
+                            izq = true;
+                        }
+                    }
+
+                }
+
+
+                else
+                {
+
+                    ataque = true;
+
+                }
+
+            } 
+            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+
+            {
+
+                this.Exit();
+            
+            }
+            
+            
+            base.Update(gameTime);
+            }
+        }
+
+        private void UpdateEnemigos()
+        {
+           
+                frameCounter++;
+                if (frameCounter > 60)
+                {
+
+                    Random r = new Random();
+                    Enemigo e = new Enemigo(new Vector2(r.Next(graphics.PreferredBackBufferWidth), -57), graphics.PreferredBackBufferHeight, graphics.PreferredBackBufferWidth, Content);
+                    enemigo.Add(e);
+                    e.FueraDePantalla += new EventHandler(FueraDePantallaHandler);
+                    frameCounter = 0;
+                }
+                enemigo.ForEach(x => x.Update(vec));
+            
+        }
+
+        private void UpdateColisiones()
+        {
+            bool colision = false;
+            Enemigo enemigoABorrar = null;
+            Disparo disparoABorrar = null;
+            
+            foreach (Enemigo e in enemigo)
+            {
+                if (ColisionEnemigoNave(e, _nave))
+                {
+
+                    s_colision_n.Play();
+                    
+                    colision = true;
+                    explo = true;
+                    enemigo.Remove(e);
+                    spritePos = _nave.Posicion;
+                    if (cont_vidas > 0)
+                    {
+                        cont_vidas--;
+                    }
+
+                    if (cont_vidas == 0)
+                    {
+
+                        fin = true;
+                        win = true;
+                    
+                    }
+
+                    cont_Extra_vidas = -1;
+                    puntos = new Rectangle(0, 0, 270, 45);
+
+                    
+                    
+                }
+                foreach (Disparo d in _nave.Disparos)
+                {
+                    if(ColisionEnemigoDisparo(e, d))
+                    {
+                        s_colision_d.Play();
+                        ene = true;
+                        colision = true;
+                        explo_e = true;
+                        ene_explo = e.Posicion;
+                        enemigoABorrar = e;
+                        disparoABorrar = d;                        
+                        break;
+                    }
+
+                    
+
+                    if (ColisionBossDisparo(_boss, d))
+                    {
+                        s_colision_d.Play();
+                        
+                        colision = true;
+                        disparoABorrar = d;
+                        cont_b = true;
+                        break;
+                    
+                    }                
+                             
+                                
+                }
+
+         
+
+                if (colision)
+                break;
+            }
+
+            foreach (Disparo d in _boss.Disparos)
+            {
+                if (ColisionNaveDisparo(_nave, d))
+                {
+
+                   
+                    s_colision_d.Play();
+
+                    disparoABorrar = d;
+
+                    if (cont_vidas > 0)
+                    {
+                        cont_vidas--;
+
+
+                    }
+
+                    if (cont_vidas == 0)
+                    {
+                        fin = true;
+
+
+                    }
+
+                }
+                break;
+            }
+
+
+            if (colision)
+            {
+            enemigo.Remove(enemigoABorrar);
+          
+            _nave.Disparos.Remove(disparoABorrar);
+            Pun_Total = Pun_Total + 100;
+            if (ene)
+            {
+                cont_ene++;
+                ene = false;
+            }
+            if (cont_b)
+            {
+                cont_boss = cont_boss + 1;  cont_b = false;
+            }
+
+            if (cont_boss == rbc)
+            {
+
+                lvl1 = true;
+                lluvia = false;
+                the_boss = false;
+                cont_boss = 0;
+
+            }
+
+            if (nivel < 4)
+            {
+                if (lvl1)
+                {
+                    nivel++;
+                    lluvia = true;
+                    the_boss = false;
+                    lvl = true;
+                    lvl1 = false;
+                    rbc = rbc + 3;
+                    vec = vec + 3;
+
+
+                }
+            }
+            if(nivel == 4)
+            {
+                win = true;
+            }
+         
+
+
+               
+            
+            if (cont_ene == 3)
+
+            {
+
+                
+                the_boss = true;
+                lluvia = false;
+                cont_ene = 0;
+
+            }
+            
+                
+            Resul = string.Concat("/",Pun_Total,"/");
+
+            if (cont_vidas < 4)
+            {
+                
+                if (cont_Extra_vidas < 10)
+                {
+                    
+                    
+                    if (cont_Extra_vidas == 9)
+                    {
+                        
+                        cont_Extra_vidas = -1;
+                        puntos = new Rectangle(0, 0, 270, 45);
+                        cont_vidas++;
+                        
+                    }
+                    cont_Extra_vidas++;
+
+                    
+                    if (cont_Extra_vidas == 1)
+                        puntos = new Rectangle(0, 45, 270, 45);
+                    if (cont_Extra_vidas == 2)
+                        puntos = new Rectangle(0, 90, 270, 45);
+                    if (cont_Extra_vidas == 3)
+                        puntos = new Rectangle(0, 135, 270, 45);
+                    if (cont_Extra_vidas == 4)
+                        puntos = new Rectangle(0, 180, 270, 45);
+                    if (cont_Extra_vidas == 5)
+                        puntos = new Rectangle(0, 225, 270, 45);
+                    if (cont_Extra_vidas == 6)
+                        puntos = new Rectangle(0, 270, 270, 45);
+                    if (cont_Extra_vidas == 7)
+                        puntos = new Rectangle(0, 315, 270, 45);
+                    if (cont_Extra_vidas == 8)
+                        puntos = new Rectangle(0, 360, 270, 45);
+                    if (cont_Extra_vidas == 9)
+                        puntos = new Rectangle(0, 405, 270, 45);
+                    if (cont_Extra_vidas == 10)
+                        puntos = new Rectangle(0, 450, 270, 45);
+  
+                        
+
+                    
+                }
+            }
+
+            }
+
+            if (cont_vidas == 4)
+                life = new Rectangle(0, 0, 160, 40);
+            if (cont_vidas == 3)
+                life = new Rectangle(0, 40, 160, 40);
+            if (cont_vidas == 2)
+                life = new Rectangle(0, 80, 160, 40);
+            if (cont_vidas == 1)
+                life = new Rectangle(0, 120, 160, 40);
+            if (cont_vidas == 0)
+                life = new Rectangle(160, 160, 160, 40);
+        }
+
+        private bool ColisionEnemigoDisparo(Enemigo e, Disparo d)
+
+        {
+            if (e.Bounds.Intersects(d.Bounds))
+            
+                return ColisionPixel(d.Imagen, e.Imagen, d.Posicion, e.Posicion);
+            
+            
+            return false;
+
+        }
+
+        private bool ColisionNaveDisparo(Nave e, Disparo d)
+        {
+            if (e.Bounds.Intersects(d.Bounds))
+
+                return ColisionPixel(d.Imagen, e.Imagen, d.Posicion, e.Posicion);
+
+
+            return false;
+
+        }
+
+        private bool ColisionBossDisparo(Boss e, Disparo d)
+        {
+            if (e.Bounds.Intersects(d.Bounds))
+
+                return ColisionPixel(d.Imagen, e.Imagen, d.Posicion, e.Posicion);
+
+
+            return false;
+
+        }
+
+        private bool ColisionEnemigoNave(Enemigo e, Nave d)
+        {
+            if (e.Bounds.Intersects(d.Bounds))
+            
+                return ColisionPixel(d.Imagen, e.Imagen, d.Posicion, e.Posicion);
+            
+
+            return false;
+
+        }
+
+        public static bool ColisionPixel(Texture2D texturaA, Texture2D texturaB, Vector2 posicionA, Vector2 posicionB)
+
+        {
+            bool colisionPxAPx = false;
+
+            uint[] bitsA = new uint[texturaA.Width * texturaA.Height];
+            uint[] bitsB = new uint[texturaB.Width * texturaB.Height];
+            Rectangle rectanguloA = new Rectangle(Convert.ToInt32(posicionA.X), Convert.ToInt32(posicionA.Y), texturaA.Width, texturaA.Height);
+            Rectangle rectanguloB = new Rectangle(Convert.ToInt32(posicionB.X), Convert.ToInt32(posicionB.Y), texturaB.Width, texturaB.Height);
+            texturaA.GetData<uint>(bitsA);
+            texturaB.GetData<uint>(bitsB);
+            int x1 = Math.Max(rectanguloA.X, rectanguloB.X);
+            int x2 = Math.Min(rectanguloA.X + rectanguloA.Width, rectanguloB.X + rectanguloB.Width);
+            int y1 = Math.Max(rectanguloA.Y, rectanguloB.Y);
+            int y2 = Math.Min(rectanguloA.Y + rectanguloA.Height, rectanguloB.Y + rectanguloB.Height);
+
+            for (int y = y1; y < y2; ++y)
+            {
+                 for (int x = x1; x < x2; ++x)
+                 {
+                    if (((bitsA[(x - rectanguloA.X) + (y - rectanguloA.Y) * rectanguloA.Width] & 0xFF000000) >> 24) > 20 &&((bitsB[(x - rectanguloB.X) + (y - rectanguloB.Y) * rectanguloB.Width] & 0xFF000000) >> 24) > 20)
+                    {
+                        colisionPxAPx = true;
+                         break;
+                     }
+                 }
+                 if (colisionPxAPx)
+                 {
+                    break;
+                 }
+            }
+
+            return colisionPxAPx;
+        }
+
+        
+
+        private void FueraDePantallaHandler(Object sender, EventArgs args)
+        {
+            enemigo.Remove((Enemigo)sender);
+
+        }
+      
+        protected override void Draw(GameTime gameTime)
+        {
+            
+                GraphicsDevice.Clear(Color.Black);
+
+                spriteBatch.Begin();
+                if (win && (fin == false))
+                {
+                    _fondo.DrawWin(spriteBatch);
+                }
+                else
+                {
+                    _fondo.DrawFin(spriteBatch);
+
+                }
+                if (win == false)
+                {
+
+                    _fondo.Draw(spriteBatch);
+                    if (explo == false)
+                    {
+                        _nave.Draw(spriteBatch);
+                        _boss.Draw(spriteBatch);
+                    }
+
+                  
+                        foreach (Enemigo e in enemigo)
+                        {
+                            e.Draw(spriteBatch);
+
+                            if (explo_e)
+                            {
+                                asteroide.DrawFrame(spriteBatch, ene_explo);
+
+
+
+
+                                currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                                if (currentTime >= countDuration)
+                                {
+                                    counter++;
+                                    currentTime -= countDuration;
+
+                                }
+                                if (counter >= limit)
+                                {
+                                    explo_e = false;
+                                    counter = 0;
+
+                                }
+
+                            }
+
+                        }
+                    
+
+                    spriteBatch.Draw(puntaje, posPuntos, puntos, Color.White);
+                    if (the_boss)
+                    {
+                        spriteBatch.Draw(_boss.Imagen, _boss.Posicion, rBoss, Color.White);
+                    }
+
+
+                    spriteBatch.Draw(vidas, posLife, life, Color.White);
+                    spriteBatch.DrawString(score, Score, posScore, Color.White);
+                    spriteBatch.DrawString(resul, Resul, posResul, Color.White);
+                    spriteBatch.DrawString(level, Level, posLevel, Color.Yellow);
+
+                    if (lvl)
+                    {
+
+                        _fondo.Drawlvl(spriteBatch);
+
+                        currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                        if (currentTime >= countDuration)
+                        {
+                            counter++;
+                            currentTime -= countDuration;
+
+                        }
+                        if (counter >= 2)
+                        {
+                            lvl = false;
+                            counter = 0;
+
+                        }
+
+                    }
+
+
+                  
+
+
+
+                    if (explo)
+                    {
+                        asteroide.DrawFrame(spriteBatch, _nave.Posicion);
+
+
+
+
+                        currentTime += (float)gameTime.ElapsedGameTime.TotalSeconds;
+
+                        if (currentTime >= countDuration)
+                        {
+                            counter++;
+                            currentTime -= countDuration;
+
+                        }
+                        if (counter >= limit)
+                        {
+                            explo = false;
+                            counter = 0;
+
+                        }
+
+                    }
+
+
+                }
+                    spriteBatch.End();
+
+                
+                base.Draw(gameTime);
+
+            
+
+        }
+    }
+}
