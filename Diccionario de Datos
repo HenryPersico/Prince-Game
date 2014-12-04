@@ -1,0 +1,126 @@
+        B
+        
+        bool fin = false;
+Variable de tipo booleano, de alcance global, que desactiva la aplicación cuando la variable entera cont_vidas llega a 0.
+        bool lvl = false;
+Variable de tipo booleano, de alcance global, que activa el siguiente nivel cuando la variable entera cont_boss alcanza su límite establecido.
+        bool lvl1 = false;
+Variable de tipo booleano, relacionada a bool lvl de alcance global, que activa el siguiente nivel cuando la variable entera cont_boss alcanza su límite establecido.
+        bool explo = false;
+Variable de tipo booleano, de alcance global, que activa la animación explo cuando la variable entera cont_vidas se reduce un dígito.
+        bool explo_e = false;
+Variable de tipo booleano, de alcance global, que activa la animación explo_e cuando la variable entera cont_ene se incrementa un dígito.
+        bool izq = true;
+Variable de tipo booleano, de alcance global, relacionado al objeto Boss_boss que activa la inteligencia artificial del mismo.
+        bool ataque = false;
+Variable de tipo booleano, de alcance global, que activa el ataque del objeto Nave_nave.
+        bool the_boss = false;
+Variable de tipo booleano, de alcance global, que activa las colisiones del objeto Boss_boss.
+        bool cont_b = false;
+Variable de tipo booleano, de alcance global, que se relaciona con la cantidad de colisiones que recibió el objeto Boss_boss.
+        bool ene = false;
+Variable de tipo booleano, de alcance global, que activa la imagen de los enemigos.
+        bool win = false;
+Variable de tipo booleano, de alcance global, que detiene la aplicación cuando la variable entera cont_boss dentro del tercer bucle de lvl1 alcanza su límite.
+        bool lluvia = true;
+Variable de tipo booleano, de alcance global, que activa la aparición de los enemigos cuando se inicia la aplicación.
+        
+       Boss _boss;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y llama datos privados.
+       
+       F
+       
+       float countDuration = 0.3f;
+Variable de tipo flotante que controla la cantidad de tiempo que tiene un objeto Fondo_fondo.
+       float currentTime = 0f;
+Variable de tipo flotante que le hace saber a la variable flotante countDuration el ciclo de tiempo que lleva.
+       Fondo _fondo;
+Tipo de clase, de alcance privado, que contiene características propias y controla todos los fondos de pantalla de la aplicación.
+
+       G
+       
+       
+       GraphicsDeviceManager graphics;
+Tipo de clase propia de Microsoft XNA.
+
+
+
+        I
+        int Pun_Total=0;
+Variable de tipo entera, de alcance global, que cuenta la cantidad de colisiones que tuvieron los enemigos.
+        int cont_vidas = 3;
+Variable de tipo entera, de alcance global,  que cuenta la cantidad de vidas que tiene el usuario al empezar.
+        int cont_Extra_vidas = 0;
+Variable de tipo entera, de alcance global,  que cuenta las vidas extra que obtiene el usuario cuando la variable entera Pun_total llega a un límite preestablecido.
+        int cont_boss = 0;
+Variable de tipo entera, de alcance global,  que cuenta la cantidad de colisiones que recibe la clase Boss_boss.
+        int cont_ene = 0;
+Variable de tipo entera, de alcance global, que cuenta la cantidad de colisiones que recibe clase Enemigo.
+        int rbc = 3;
+Variable de tipo entera, de alcance global, cuenta la cantidad de veces que la variable booleana lvl se repite.
+        int vec = 3;
+Variable de tipo entera, de alcance global, cuenta la cantidad de veces que la variable booleana lvl se repite.
+        int nivel = 0;
+Variable de tipo entera, de alcance global, cuenta la cantidad de veces que la variable booleana lvl se repite.     
+        int counter = 0;
+Variable de tipo entera, de alcance global, cuenta la cantidad de veces que la clase Fondo_fondo aparece en pantalla.
+        int limit = 1;
+Variable de tipo entera, de alcance global, cuenta la cantidad de veces que la clase Fondo_fondo aparece en pantalla.
+
+
+
+        N
+        
+        Nave _nave;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y llama datos que el usuario utiliza en primera persona.
+
+       
+       P
+       
+        private int frameCounter = 0;
+Tipo de clase que contiene características propias de la animación, es de alcance privado y llama datos privados.
+        private List<Enemigo> enemigo;
+Tipo de clase que contiene características propias de la animación del enemigo, es de alcance privado y llama datos privados.
+        private animacion asteroide;
+Tipo de clase que contiene características propias de la animación del enemigo, es de alcance privado y llama datos privados.
+        private Vector2 spritePos;
+Tipo de clase que contiene características propias de la animación, es de alcance privado y llama datos privados.
+        private const int FRAMES = 5;
+Tipo de clase que contiene características propias de la animación del enemigo, es de alcance privado y llama datos que se relacionan al movimiento.
+        private const int FRAMESPERSEC = 10;
+Tipo de clase que contiene características propias de la animación del enemigo, es de alcance privado y llama que se relacionan al movimiento.
+        
+        R
+        
+        Rectangle life,puntos,rBoss;
+Estructura propia de Microsoft XNA, de alcance privada, que se relaciona con las clases Nave_nave, Boss_boss y sus respectivas animaciones.
+        
+        S
+        
+        SpriteBatch spriteBatch;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y contiene  imágenes varias.
+        SpriteFont score,resul,level;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y contiene imágenes pequeñas varias.
+        string Score = "PUNTAJE";
+Variable de tipo string, de alcance público, que se relaciona con la variable entera Pun_total y muestra en pantalla los puntos correspondientes.
+        string Resul= "";
+Variable de tipo string, de alcance público, que se relaciona con la variable entera Pun_total y muestra en pantalla los puntos correspondientes
+        string Level = "NIVEL X";
+Variable de tipo string, de alcance público, que se relaciona con la clase lvl y muestra el nivel correspondiente.        
+        SoundEffect s_colision_n, s_colision_d;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y contiene los sonidos de las animaciones.
+        SoundEffect s_fondo;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y contiene la música que se usa en el juego.      
+
+
+       T
+       
+        Texture2D puntaje,vidas,boss;
+Tipo de clase que contiene características propias de la misma, es de alcance privado y contiene imágenes varias.
+
+        V
+        
+        Vector2 posLife,posPuntos,posScore,posResul,posLevel,posBoss;
+Estructura propia de Microsoft XNA, de alcance privada, que se relaciona con variables enteras de posición.
+        Vector2 ene_explo;
+Estructura propia de Microsoft XNA, de alcance privada, que se relaciona con las animaciones. 
